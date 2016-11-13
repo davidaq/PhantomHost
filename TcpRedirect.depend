@@ -1,0 +1,22 @@
+# depslib dependency file v1.0
+1478972306 source:d:\workspace\tcpredirect\main.cpp
+	<iostream>
+	<windows.h>
+	"include/windivert.h"
+
+1479009265 d:\workspace\tcpredirect\include\windivert.h
+	<windows.h>
+	<stdint.h>
+
+1479010138 source:d:\workspace\tcpredirect\handle_dns.cpp
+	<iostream>
+	"include/windivert.h"
+	"include/defs.h"
+
+1479015848 d:\workspace\tcpredirect\include\defs.h
+
+1479010166 source:d:\workspace\tcpredirect\handle_tcp.cpp
+	<iostream>
+	"include/windivert.h"
+	"include/defs.h"
+
