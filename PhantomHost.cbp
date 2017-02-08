@@ -31,17 +31,39 @@
 					<Add library="lib/libws2_32.a" />
 				</Linker>
 			</Target>
+			<Target title="Simple">
+				<Option output="bin/Release/SambaProxy" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="lib/libws2_32.a" />
+				</Linker>
+			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="handle_dns.cpp" />
+		<Unit filename="handle_dns.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="handle_icmp.cpp" />
 		<Unit filename="handle_tcp.cpp" />
 		<Unit filename="include/defs.h" />
 		<Unit filename="include/windivert.h" />
-		<Unit filename="main.cpp" />
+		<Unit filename="main.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="simple.cpp">
+			<Option target="Simple" />
+		</Unit>
 		<Extensions>
 			<code_completion />
 			<envvars />

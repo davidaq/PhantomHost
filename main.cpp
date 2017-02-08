@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <windows.h>
 #include <cstdlib>
 #include <stdio.h>
@@ -124,25 +125,29 @@ std::string program(int argc, char** argv, int& exitCode) {
     }
     const std::string& host_ip_str = iptostr(*((UINT*)host_ip)).c_str();
     std::cout << "Creating phantom host:     " << ctx.host_domain << " (" << host_ip_str << ')' << std::endl;
+
+    std::stringstream filter_expr_io;
+    filter_expr_io << "(udp and outbound and udp.DstPort == 53) or "
+        << "(icmp and outbound and ip.DstAddr == " << host_ip_str << ") or ";
+
     for (int i = 0; i < 65536; i++) {
         if (ctx.route[i]) {
             UINT dest_ip = ctx.route[i]->ip;
             UCHAR* ip = (UCHAR*)&dest_ip;
-            std::cout << "    " << ntohs(i) << " ==> "
-                << (int)ip[0] << '.' << (int)ip[1] << '.' << (int)ip[2] << '.' << (int)ip[3]
-                << ":" << ntohs(ctx.route[i]->port) << std::endl;
+            std::stringstream ip_str_io;
+            ip_str_io << (int)ip[0] << '.' << (int)ip[1] << '.' << (int)ip[2] << '.' << (int)ip[3];
+            const std::string& ip_str = ip_str_io.str();
+            const UINT dest_port = ntohs(ctx.route[i]->port);
+            std::cout << "    " << ntohs(i) << " ==> " << ip_str << ":" << dest_port << std::endl;
+            if (ip[0] != 127) {
+                filter_expr_io << "(tcp and inbound and ip.SrcAddr == " << ip_str << " and tcp.SrcPort == " << dest_port << ") or ";
+            }
         }
     }
+    filter_expr_io << "(tcp and outbound and ip.DstAddr == " << host_ip_str << ")";
+    const std::string& filter_expr = filter_expr_io.str();
 
-    char filter_expr[500];
-    sprintf(
-        filter_expr,
-        "(icmp and outbound and ip.DstAddr == %s) or "
-        "(udp and outbound and udp.DstPort == 53) or "
-        "(tcp and ((outbound and ip.DstAddr == %s) or inbound))",
-        host_ip_str.c_str(), host_ip_str.c_str()
-    );
-    ctx.hFilter = ctx.divert.Open(filter_expr, WINDIVERT_LAYER_NETWORK, 0, 0);
+    ctx.hFilter = ctx.divert.Open(filter_expr.c_str(), WINDIVERT_LAYER_NETWORK, 0, 0);
     if (ctx.hFilter == INVALID_HANDLE_VALUE) {
         DWORD err = GetLastError();
         if (err == 2) {

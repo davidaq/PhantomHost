@@ -29,3 +29,41 @@
 	"include/windivert.h"
 	"include/defs.h"
 
+1479029106 source:c:\users\davidaq\desktop\phantomhost\handle_dns.cpp
+	<iostream>
+	"include/windivert.h"
+	"include/defs.h"
+
+1479009265 c:\users\davidaq\desktop\phantomhost\include\windivert.h
+	<windows.h>
+	<stdint.h>
+
+1479034047 c:\users\davidaq\desktop\phantomhost\include\defs.h
+	<stdio.h>
+
+1479028956 source:c:\users\davidaq\desktop\phantomhost\handle_icmp.cpp
+	<iostream>
+	"include/windivert.h"
+	"include/defs.h"
+
+1479126826 source:c:\users\davidaq\desktop\phantomhost\handle_tcp.cpp
+	<iostream>
+	"include/windivert.h"
+	"include/defs.h"
+
+1486524535 source:c:\users\davidaq\desktop\phantomhost\main.cpp
+	<iostream>
+	<windows.h>
+	<cstdlib>
+	<stdio.h>
+	"include/windivert.h"
+	"include/defs.h"
+
+1479128016 source:c:\users\davidaq\desktop\phantomhost\simple.cpp
+	<iostream>
+	<windows.h>
+	<cstdlib>
+	<stdio.h>
+	"include/windivert.h"
+	"include/defs.h"
+
