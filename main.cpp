@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <windows.h>
+#include <winsock.h>
 #include <cstdlib>
 #include <stdio.h>
 #include "include/windivert.h"
@@ -8,15 +9,28 @@
 
 const char* HELP_MESSAGE =
     "Usage:\n"
-    "   PhantomHost [--host domain.name] [--ip x.x.x.x] [PORT=DEST_IP:DEST_PORT] ...\n"
+    "   PhantomHost [--domain domain.name] [--ip x.x.x.x] [PORT=DEST_IP:DEST_PORT] ...\n"
     "\n"
     "Example:\n"
-    "   PhantomHost --host my.domain.com --ip 1.1.1.1 80=192.168.1.1:8088\n"
+    "   PhantomHost --domain my.domain.com --ip 1.1.1.1 80=192.168.1.1:8088\n"
     "\n"
     "Multiple port mapping is allowed, just append mapping rule in the arguments.\n"
     "\n";
 
+class use_WSA {
+    WSADATA d;
+    WORD ver;
+public:
+    use_WSA() : ver(MAKEWORD(1,1)) {
+        if ((WSAStartup(ver, &d)!=0) || (ver != d.wVersion))
+            throw(std::runtime_error("Error starting Winsock"));
+    }
+    ~use_WSA() { WSACleanup(); }
+};
+
 std::string program(int argc, char** argv, int& exitCode) {
+    use_WSA use_wsa;
+
     if (argc <= 1) {
         std::cout << HELP_MESSAGE << std::endl;
         return "";
@@ -80,13 +94,35 @@ std::string program(int argc, char** argv, int& exitCode) {
                 continue;
             ptr++;
             ip = (UCHAR*)&dest_ip;
-            for (int i = 0; i < 4; i++) {
-                ip[i] = (UCHAR)strtol(ptr, &ptr, 10);
-                if (ptr[0] != ':' && ptr[0] != '.') {
-                    dest_ip = 0;
-                    break;
+            char* nptr = ptr;
+            BOOL is_ip = TRUE;
+            while (*nptr && *nptr != ':') {
+                if (*nptr != '.' && (*nptr < '0' || *nptr > '9')) {
+                    is_ip = FALSE;
                 }
-                ptr++;
+                nptr++;
+            }
+            if (is_ip) {
+                for (int i = 0; i < 4; i++) {
+                    ip[i] = (UCHAR)strtol(ptr, &ptr, 10);
+                    if (ptr[0] != ':' && ptr[0] != '.') {
+                        dest_ip = 0;
+                        break;
+                    }
+                    ptr++;
+                }
+            } else {
+                std::string addr(ptr, nptr);
+                try {
+                    hostent* host = gethostbyname(addr.c_str());
+                    UCHAR* host_ip = reinterpret_cast<unsigned char *>(host->h_addr_list[0]);
+                    for (int i = 0; i < 4; i++) {
+                        ip[i] = host_ip[i];
+                    }
+                } catch (std::exception const &exc) {
+                    return exc.what();
+                }
+                ptr = ++nptr;
             }
             if (!dest_ip) {
                 continue;

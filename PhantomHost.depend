@@ -46,14 +46,16 @@
 	"include/windivert.h"
 	"include/defs.h"
 
-1479126826 source:c:\users\davidaq\desktop\phantomhost\handle_tcp.cpp
+1486527887 source:c:\users\davidaq\desktop\phantomhost\handle_tcp.cpp
 	<iostream>
 	"include/windivert.h"
 	"include/defs.h"
 
-1486524535 source:c:\users\davidaq\desktop\phantomhost\main.cpp
+1486535569 source:c:\users\davidaq\desktop\phantomhost\main.cpp
 	<iostream>
+	<sstream>
 	<windows.h>
+	<winsock.h>
 	<cstdlib>
 	<stdio.h>
 	"include/windivert.h"

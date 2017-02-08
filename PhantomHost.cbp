@@ -30,6 +30,10 @@
 					<Add option="-s" />
 					<Add library="lib/libws2_32.a" />
 				</Linker>
+				<ExtraCommands>
+					<Add after="C:\Program Files\Git\bin\bash -c &apos;cp -f ./bin/Release/PhantomHost.exe ./dist/PhantomHost.exe&apos;" />
+					<Mode after="always" />
+				</ExtraCommands>
 			</Target>
 			<Target title="Simple">
 				<Option output="bin/Release/SambaProxy" prefix_auto="1" extension_auto="1" />

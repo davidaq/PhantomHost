@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include "include/windivert.h"
 #include "include/defs.h"
 
@@ -78,9 +79,19 @@ static BOOL handle(PACKET_CONTEXT& ctx) {
 BOOL handle_tcp(PACKET_CONTEXT& ctx) {
     if (handle(ctx)) {
         if (ctx.tcp_header->Syn) {
-            std::cout << (ctx.addr.Direction == WINDIVERT_DIRECTION_INBOUND ? "IN  ":"OUT ") << ' '
-                << iptostr(ctx.ip_header->SrcAddr) << ':' << ntohs(ctx.tcp_header->SrcPort) << "\t -> "
-                << iptostr(ctx.ip_header->DstAddr) << ':' << ntohs(ctx.tcp_header->DstPort) << std::endl;
+            std::stringstream msg_io;
+            static int max_msg_len = 0;
+            msg_io << (ctx.addr.Direction == WINDIVERT_DIRECTION_INBOUND ? "IN  ":"OUT ") << ' '
+                << iptostr(ctx.ip_header->SrcAddr) << ':' << ntohs(ctx.tcp_header->SrcPort);
+            std::string msg = msg_io.str();
+            std::cout << msg;
+            if (max_msg_len < msg.size()) {
+                max_msg_len = msg.size();
+            }
+            for (int i = msg.size(); i < max_msg_len; i++) {
+                std::cout << ' ';
+            }
+            std::cout << " -> " << iptostr(ctx.ip_header->DstAddr) << ':' << ntohs(ctx.tcp_header->DstPort) << std::endl;
         }
         ctx.divert.HelperCalcChecksums(ctx.packet, ctx.packet_len, 0);
         ctx.divert.Send(ctx.hFilter, ctx.packet, ctx.packet_len, &ctx.addr, &ctx.packet_len);
